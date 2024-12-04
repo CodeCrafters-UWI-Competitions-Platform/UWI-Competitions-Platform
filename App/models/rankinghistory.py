@@ -23,7 +23,7 @@ class RankingHistory(db.Model):
             "id" : self.id,
             "student_id" : self.student_id,
             "rank" : self.rank,
-            "total_rating" : self.rating,
+            "total_rating" : self.total_rating,
             "average_rating" : self.average_rating,
             "timestamp" : self.timestamp
         }
