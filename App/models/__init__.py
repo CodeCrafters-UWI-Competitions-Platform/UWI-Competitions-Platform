@@ -11,3 +11,4 @@ from .student import *
 from .observer import *
 from .rankingsystem import *
 from .subject import *
+from .rankinghistory import *
