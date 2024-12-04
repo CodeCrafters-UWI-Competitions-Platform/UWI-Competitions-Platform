@@ -7,7 +7,6 @@ class Student(User):
     rating_score = db.Column(db.Float, nullable=False, default=0)
     comp_count = db.Column(db.Integer, nullable=False, default=0)
     curr_rank = db.Column(db.Integer, nullable=False, default=0)
-    prev_rank = db.Column(db.Integer, nullable=False, default=0)
     teams = db.relationship('Team', secondary='student_team', overlaps='students', lazy=True)
     notifications = db.relationship('Notification', backref='student', lazy=True)
 
@@ -16,20 +15,8 @@ class Student(User):
         self.rating_score = 0
         self.comp_count = 0
         self.curr_rank = 0
-        self.prev_rank = 0
         self.teams = []
         self.notifications = []
-
-    def add_notification(self, notification):
-        if notification:
-          try:
-            self.notifications.append(notification)
-            db.session.commit()
-            return notification
-          except Exception as e:
-            db.session.rollback()
-            return None
-        return None
 
     def get_json(self):
         return {
