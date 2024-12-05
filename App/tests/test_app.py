@@ -291,7 +291,6 @@ class IntegrationTests(unittest.TestCase):
 
     #Feature 3 Integration Tests
     def test_display_student_info(self):
-      db.drop_all()
       db.create_all()
       mod = create_moderator("debra", "debrapass")
       comp = create_competition(mod.username, "RunTime", "29-03-2024", "St. Augustine", 2, 25)
@@ -302,8 +301,9 @@ class IntegrationTests(unittest.TestCase):
       team = add_team(mod.username, comp.name, "Runtime Terrors", students)
       comp_team = add_results(mod.username, comp.name, "Runtime Terrors", 15)
       update_ratings(mod.username, comp.name)
-      update_rankings()
-      self.assertDictEqual(display_student_info("james"), {"profile": {'id': 1, 'username': 'james', 'rating_score': 24.0, 'comp_count': 1, 'curr_rank': 1}, "competitions": ['RunTime']})
+      self.assertDictEqual(display_student_info("james"), {"profile": {'id': 1, 'username': 'james', 'total_rating': 24.0, 'average_rating': 24.0, 'comp_count': 1, 'curr_rank': 1, 'ranking_history': []}, "competitions": ['RunTime']})
+      db.session.remove()
+      db.drop_all()
 
     #Feature 4 Integration Tests
     def test_display_competition(self):
