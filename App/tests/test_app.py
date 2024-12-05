@@ -14,6 +14,21 @@ LOGGER = logging.getLogger(__name__)
 '''
 class UnitTests(unittest.TestCase):
     #User Unit Tests
+    #RankingHistory Unit Tests
+    def test_new_ranking_history(self):
+      db.create_all()
+      rank_record = RankingHistory(1, 10, 4, datetime(2023, 12, 1, 10, 30, 0))
+      assert rank_record.rank == 1 and rank_record.total_rating == 10 and rank_record.average_rating == 4 and rank_record.timestamp == datetime(2023, 12, 1, 10, 30, 0)
+      db.session.remove()
+      db.drop_all()
+
+    def test_ranking_history_get_json(self):
+      db.create_all()
+      rank_record = RankingHistory(1, 10, 4, datetime(2023, 12, 1, 10, 30, 0))
+      self.assertDictEqual(rank_record.get_json(), {"id": None, "student_id": None, "rank": 1, "total_rating": 10, "average_rating": 4, "timestamp": datetime(2023, 12, 1, 10, 30, 0)})
+      db.session.remove()
+      db.drop_all()
+    
     def test_new_user(self):
         user = User("ryan", "ryanpass")
         assert user.username == "ryan"
