@@ -78,16 +78,18 @@ class UnitTests(unittest.TestCase):
     
     #Team Unit Tests
     def test_new_team(self):
-      db.drop_all()
       db.create_all()
       team = Team("Scrum Lords")
       assert team.name == "Scrum Lords"
+      db.session.remove()
+      db.drop_all()
     
     def test_team_get_json(self):
-      db.drop_all()
       db.create_all()
       team = Team("Scrum Lords")
       self.assertDictEqual(team.get_json(), {"id":None, "name":"Scrum Lords", "students": []})
+      db.session.remove()
+      db.drop_all()
     
     #Competition Unit Tests
     def test_new_competition(self):
