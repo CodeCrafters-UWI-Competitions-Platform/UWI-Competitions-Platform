@@ -148,8 +148,9 @@ def calculate_ratings():
                 count += 1
                 total_rating += competition_team.rating_score
 
-        average_rating = total_rating / count
-        update_ratings_db(student.id, total_rating, average_rating)
+        if total_rating > 0 and count > 0:
+            average_rating = total_rating / count
+            update_ratings_db(student.id, total_rating, average_rating)
         
 '''Updates the database for total and average for a single student'''
 def update_ratings_db(id, total_rating, average_rating):
