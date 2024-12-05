@@ -278,8 +278,12 @@ h1 {
                 {% endif %}
             </div>
             <div class="rating-score">
-                <p>Rating Score</p>
-                <p>{{'%0.2f' % student.rating_score|float}}</p>
+                <p>Total Rating</p>
+                <p>{{'%0.2f' % student.total_rating|float}}</p>
+            </div>
+            <div class="rating-score">
+                <p>Average Rating</p>
+                <p>{{'%0.2f' % student.average_rating|float}}</p>
             </div>
         </span>
         <div style="color: white;" class="competition-list">

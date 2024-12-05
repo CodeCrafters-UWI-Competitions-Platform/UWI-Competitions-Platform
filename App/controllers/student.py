@@ -1,5 +1,6 @@
+from datetime import datetime
 from App.database import db
-from App.models import Student, Competition, Notification, CompetitionTeam
+from App.models import Student, Competition, Notification, CompetitionTeam, RankingHistory
 
 def create_student(username, password):
     student = get_student_by_username(username)
@@ -81,69 +82,183 @@ def display_notifications(username):
     else:
         return {"notifications":[notification.to_Dict() for notification in student.notifications]}
 
-def update_rankings():
+# def update_rankings():
+#     students = get_all_students()
+    
+#     students.sort(key=lambda x: (x.rating_score, x.comp_count), reverse=True)
+
+#     leaderboard = []
+#     count = 1
+    
+#     curr_high = students[0].rating_score
+#     curr_rank = 1
+        
+#     for student in students:
+#         if curr_high != student.rating_score:
+#             curr_rank = count
+#             curr_high = student.rating_score
+
+#         if student.comp_count != 0:
+#             leaderboard.append({"placement": curr_rank, "student": student.username, "rating score":student.rating_score})
+#             count += 1
+        
+#             student.curr_rank = curr_rank
+#             if student.prev_rank == 0:
+#                 message = f'RANK : {student.curr_rank}. Congratulations on your first rank!'
+#             elif student.curr_rank == student.prev_rank:
+#                 message = f'RANK : {student.curr_rank}. Well done! You retained your rank.'
+#             elif student.curr_rank < student.prev_rank:
+#                 message = f'RANK : {student.curr_rank}. Congratulations! Your rank has went up.'
+#             else:
+#                 message = f'RANK : {student.curr_rank}. Oh no! Your rank has went down.'
+#             student.prev_rank = student.curr_rank
+#             notification = Notification(student.id, message)
+#             student.notifications.append(notification)
+
+#             try:
+#                 db.session.add(student)
+#                 db.session.commit()
+#             except Exception as e:
+#                 db.session.rollback()
+
+#     return leaderboard
+
+'''Returns Leaderboard data in the order of Highest to Lowest Rank'''
+def get_student_leaderboard_data():
     students = get_all_students()
-    
-    students.sort(key=lambda x: (x.rating_score, x.comp_count), reverse=True)
 
+    students.sort(key=lambda x: (x.curr_rank), reverse=False)
     leaderboard = []
-    count = 1
-    
-    curr_high = students[0].rating_score
-    curr_rank = 1
-        
+
     for student in students:
-        if curr_high != student.rating_score:
-            curr_rank = count
-            curr_high = student.rating_score
-
         if student.comp_count != 0:
-            leaderboard.append({"placement": curr_rank, "student": student.username, "rating score":student.rating_score})
-            count += 1
-        
-            student.curr_rank = curr_rank
-            if student.prev_rank == 0:
-                message = f'RANK : {student.curr_rank}. Congratulations on your first rank!'
-            elif student.curr_rank == student.prev_rank:
-                message = f'RANK : {student.curr_rank}. Well done! You retained your rank.'
-            elif student.curr_rank < student.prev_rank:
-                message = f'RANK : {student.curr_rank}. Congratulations! Your rank has went up.'
-            else:
-                message = f'RANK : {student.curr_rank}. Oh no! Your rank has went down.'
-            student.prev_rank = student.curr_rank
-            notification = Notification(student.id, message)
-            student.notifications.append(notification)
-
-            try:
-                db.session.add(student)
-                db.session.commit()
-            except Exception as e:
-                db.session.rollback()
-
+            leaderboard.append({"placement": student.curr_rank, "student": student.username, "Total Score": student.total_rating, "Average Score": student.average_rating})
     return leaderboard
 
-def display_rankings():
+'''Calculates the Total and Average ratings for each student'''
+def calculate_ratings():
+    save_ranking_history()
+    students = get_all_students()
+    for student in students:
+        total_rating = 0
+        count = 0
+        for team in student.teams:
+            competition_teams = CompetitionTeam.query.filter_by(team_id=team.id).all()
+            for competition_team in competition_teams:
+                count += 1
+                total_rating += competition_team.rating_score
+
+        average_rating = total_rating / count
+        update_ratings_db(student.id, total_rating, average_rating)
+        
+'''Updates the database for total and average for a single student'''
+def update_ratings_db(id, total_rating, average_rating):
+    student = get_student(id)
+    student.total_rating = total_rating
+    student.average_rating = average_rating
+    student.comp_count += 1
+
+    try:
+        db.session.add(student)
+        db.session.commit()
+    except Exception as e:
+        db.session.rollback()
+
+'''Updates the rank of all students based on total rating for all competitions'''
+def update_all_rankings_total():
+    if calculate_ratings():
+        print("Success Updating Rankings")
+
+    students = get_all_students()
+    students.sort(key=lambda x: (x.total_rating, x.average_rating, x.comp_count), reverse=True)
+    rank = 1
+    prev_student = None
+
+    for count, student in enumerate(students, start=1):
+        if prev_student:
+            if prev_student.total_rating != student.total_rating and prev_student.average_rating != student.average_rating and prev_student.comp_count != student.comp_count:
+                rank = count
+        student.curr_rank = rank
+        prev_student = student
+        db.session.add(student)
+    try:
+        db.session.commit()
+    except Exception as e:
+        db.session.rollback()
+    send_notification()
+
+'''Updates the rank of all students based on the average rating per competition'''
+def update_all_rankings_average():
+    if calculate_ratings():
+        print("Success Updating Rankings...")
+
+    students = get_all_students()
+    students.sort(key=lambda x: (x.average_rating, x.total_rating, x.comp_count), reverse=True)
+    count = 1
+
+    for student in students:
+        student.curr_rank = count
+        count += 1
+        db.session.add(student)
+        
+    try:
+        db.session.commit()
+    except Exception as e:
+        db.session.rollback()
+
+'''Updates the rank of all students based on the number of competitions they are involved in'''
+def update_all_rankings_competition_count():
+    if calculate_ratings():
+        print("Success Updating Rankings...")
+
+    students = get_all_students()
+    students.sort(key=lambda x: (x.comp_count, x.total_rating, x.average_rating), reverse=True)
+    count = 1
+
+    for student in students:
+        student.curr_rank = count
+        count += 1
+        db.session.add(student)
+
+    try:
+        db.session.commit()
+    except Exception as e:
+        db.session.rollback()
+
+'''Saves the ranking history for each student before recalculating rank'''
+def save_ranking_history():
     students = get_all_students()
 
-    students.sort(key=lambda x: (x.rating_score, x.comp_count), reverse=True)
-
-    leaderboard = []
-    count = 1
-    curr_high = students[0].rating_score
-    curr_rank = 1
-        
     for student in students:
-        if curr_high != student.rating_score:
-            curr_rank = count
-            curr_high = student.rating_score
+        if student.curr_rank != 0:
+            rank = db.session.query(RankingHistory).order_by(RankingHistory.timestamp.desc()).first()
+            record = RankingHistory(student.curr_rank, student.total_rating, student.average_rating, datetime.now())
+            student.ranking_history.append(record)
+            db.session.add(student)
+    db.session.commit()
 
-        if student.comp_count != 0:
-            leaderboard.append({"placement": curr_rank, "student": student.username, "rating score":student.rating_score})
-            count += 1
+'''Checks if rank changed and issues a notification'''
+def send_notification():
+    students = get_all_students()
 
-    print("Rank\tStudent\tRating Score")
+    for student in students:
+        if(student.curr_rank != 0):
+            rank = RankingHistory.query.filter_by(student_id = student.id).order_by(RankingHistory.timestamp.desc()).first()
+            if rank != None:
+                print(rank.get_json())
 
-    for position in leaderboard:
-        print(f'{position["placement"]}\t{position["student"]}\t{position["rating score"]}')
-    
-    return leaderboard
+            if rank == None:
+                notification = Notification(student.id, f"RANK : {student.curr_rank}. Congratulations on your first rank!")
+                db.session.add(notification)
+            elif rank.rank < student.curr_rank:
+                notification = Notification(student.id, f"RANK : {student.curr_rank}. Oh no! Your rank went down!")
+                db.session.add(notification)
+            elif rank.rank > student.curr_rank:
+                notification = Notification(student.id, f"RANK : {student.curr_rank}. Congratulations! your rank went up!")
+                db.session.add(notification)
+            elif rank.rank == student.curr_rank:
+                notification = Notification(student.id, f"RANK : {student.curr_rank}. Well done! You retained your rank.")
+                db.session.add(notification)
+
+            
+    db.session.commit()

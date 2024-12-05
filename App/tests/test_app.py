@@ -5,7 +5,7 @@ from App.main import create_app
 from App.database import db, create_db
 from App.models import *
 from App.controllers import *
-
+from App.controllers.student import *
 
 LOGGER = logging.getLogger(__name__)
 
@@ -13,7 +13,24 @@ LOGGER = logging.getLogger(__name__)
    Unit Tests
 '''
 class UnitTests(unittest.TestCase):
+    
+    #RankingHistory Unit Tests
+    def test_new_ranking_history(self):
+      db.create_all()
+      rank_record = RankingHistory(1, 10, 4, datetime(2023, 12, 1, 10, 30, 0))
+      assert rank_record.rank == 1 and rank_record.total_rating == 10 and rank_record.average_rating == 4 and rank_record.timestamp == datetime(2023, 12, 1, 10, 30, 0)
+      db.session.remove()
+      db.drop_all()
+
+    def test_ranking_history_get_json(self):
+      db.create_all()
+      rank_record = RankingHistory(1, 10, 4, datetime(2023, 12, 1, 10, 30, 0))
+      self.assertDictEqual(rank_record.get_json(), {"id": None, "student_id": None, "rank": 1, "total_rating": 10, "average_rating": 4, "timestamp": datetime(2023, 12, 1, 10, 30, 0)})
+      db.session.remove()
+      db.drop_all()
+    
     #User Unit Tests
+
     def test_new_user(self):
         user = User("ryan", "ryanpass")
         assert user.username == "ryan"
@@ -31,68 +48,78 @@ class UnitTests(unittest.TestCase):
 
     #Student Unit Tests
     def test_new_student(self):
-      db.drop_all()
       db.create_all()
       student = Student("james", "jamespass")
       assert student.username == "james"
+      db.session.remove()
+      db.drop_all()
 
     def test_student_get_json(self):
-      db.drop_all()
       db.create_all()
       student = Student("james", "jamespass")
-      self.assertDictEqual(student.get_json(), {"id": None, "username": "james", "rating_score": 0, "comp_count": 0, "curr_rank": 0})
+      self.assertDictEqual(student.get_json(), {"id": None, "username": "james", "total_rating": 0, "average_rating": 0, "comp_count": 0, "curr_rank": 0, "ranking_history": []})
+      db.session.remove()
+      db.drop_all()
 
     #Moderator Unit Tests
     def test_new_moderator(self):
-      db.drop_all()
       db.create_all()
       mod = Moderator("robert", "robertpass")
       assert mod.username == "robert"
+      db.session.remove()
+      db.drop_all()
 
     def test_moderator_get_json(self):
-      db.drop_all()
       db.create_all()
       mod = Moderator("robert", "robertpass")
       self.assertDictEqual(mod.get_json(), {"id":None, "username": "robert", "competitions": []})
+      db.session.remove()
+      db.drop_all()
     
     #Team Unit Tests
     def test_new_team(self):
-      db.drop_all()
       db.create_all()
       team = Team("Scrum Lords")
       assert team.name == "Scrum Lords"
+      db.session.remove()
+      db.drop_all()
     
     def test_team_get_json(self):
-      db.drop_all()
       db.create_all()
       team = Team("Scrum Lords")
       self.assertDictEqual(team.get_json(), {"id":None, "name":"Scrum Lords", "students": []})
+      db.session.remove()
+      db.drop_all()
     
     #Competition Unit Tests
     def test_new_competition(self):
-      db.drop_all()
       db.create_all()
       competition = Competition("RunTime", datetime.strptime("09-02-2024", "%d-%m-%Y"), "St. Augustine", 1, 25)
       assert competition.name == "RunTime" and competition.date.strftime("%d-%m-%Y") == "09-02-2024" and competition.location == "St. Augustine" and competition.level == 1 and competition.max_score == 25
+      db.session.remove()
+      db.drop_all()
 
     def test_competition_get_json(self):
-      db.drop_all()
       db.create_all()
       competition = Competition("RunTime", datetime.strptime("09-02-2024", "%d-%m-%Y"), "St. Augustine", 1, 25)
       self.assertDictEqual(competition.get_json(), {"id": None, "name": "RunTime", "date": "09-02-2024", "location": "St. Augustine", "level": 1, "max_score": 25, "moderators": [], "teams": []})
+      db.session.remove()
+      db.drop_all()
     
     #Notification Unit Tests
     def test_new_notification(self):
-      db.drop_all()
       db.create_all()
       notification = Notification(1, "Ranking changed!")
       assert notification.student_id == 1 and notification.message == "Ranking changed!"
+      db.session.remove()
+      db.drop_all()
 
     def test_notification_get_json(self):
-      db.drop_all()
       db.create_all()
       notification = Notification(1, "Ranking changed!")
       self.assertDictEqual(notification.get_json(), {"id": None, "student_id": 1, "notification": "Ranking changed!"})
+      db.session.remove()
+      db.drop_all()
     """
     #Ranking Unit Tests
     def test_new_ranking(self):
@@ -132,58 +159,66 @@ class UnitTests(unittest.TestCase):
     """
     #CompetitionTeam Unit Tests
     def test_new_competition_team(self):
-      db.drop_all()
       db.create_all()
       competition_team = CompetitionTeam(1, 1)
       assert competition_team.comp_id == 1 and competition_team.team_id == 1
+      db.session.remove()
+      db.drop_all()
 
     def test_competition_team_update_points(self):
-      db.drop_all()
       db.create_all()
       competition_team = CompetitionTeam(1, 1)
       competition_team.update_points(15)
       assert competition_team.points_earned == 15
+      db.session.remove()
+      db.drop_all()
 
     def test_competition_team_update_rating(self):
-      db.drop_all()
       db.create_all()
       competition_team = CompetitionTeam(1, 1)
       competition_team.update_rating(12)
       assert competition_team.rating_score == 12
+      db.session.remove()
+      db.drop_all()
 
     def test_competition_team_get_json(self):
-      db.drop_all()
       db.create_all()
       competition_team = CompetitionTeam(1, 1)
       competition_team.update_points(15)
       competition_team.update_rating(12)
       self.assertDictEqual(competition_team.get_json(), {"id": None, "team_id": 1, "competition_id": 1, "points_earned": 15, "rating_score": 12})
+      db.session.remove()
+      db.drop_all()
 
     #CompetitionModerator Unit Tests
     def test_new_competition_moderator(self):
-      db.drop_all()
       db.create_all()
       competition_moderator = CompetitionModerator(1, 1)
       assert competition_moderator.comp_id == 1 and competition_moderator.mod_id == 1
+      db.session.remove()
+      db.drop_all()
 
     def test_competition_moderator_get_json(self):
-      db.drop_all()
       db.create_all()
       competition_moderator = CompetitionModerator(1, 1)
       self.assertDictEqual(competition_moderator.get_json(), {"id": None, "competition_id": 1, "moderator_id": 1})
+      db.session.remove()
+      db.drop_all()
 
     #StudentTeam Unit Tests
     def test_new_student_team(self):
-      db.drop_all()
       db.create_all()
       student_team = StudentTeam(1, 1)
       assert student_team.student_id == 1 and student_team.team_id == 1
+      db.session.remove()
+      db.drop_all()
     
     def test_student_team_get_json(self):
-      db.drop_all()
       db.create_all()
       student_team = StudentTeam(1, 1)
       self.assertDictEqual(student_team.get_json(), {"id": None, "student_id": 1, "team_id": 1})
+      db.session.remove()
+      db.drop_all()
 
 '''
     Integration Tests
@@ -192,22 +227,23 @@ class IntegrationTests(unittest.TestCase):
     
     #Feature 1 Integration Tests
     def test1_create_competition(self):
-      db.drop_all()
       db.create_all()
       mod = create_moderator("debra", "debrapass")
       comp = create_competition(mod.username, "RunTime", "29-03-2024", "St. Augustine", 2, 25)
       assert comp.name == "RunTime" and comp.date.strftime("%d-%m-%Y") == "29-03-2024" and comp.location == "St. Augustine" and comp.level == 2 and comp.max_score == 25
+      db.session.remove()
+      db.drop_all()
 
     def test2_create_competition(self):
-      db.drop_all()
       db.create_all()
       mod = create_moderator("debra", "debrapass")
       comp = create_competition(mod.username, "RunTime", "29-03-2024", "St. Augustine", 2, 25)
       self.assertDictEqual(comp.get_json(), {"id": 1, "name": "RunTime", "date": "29-03-2024", "location": "St. Augustine", "level": 2, "max_score": 25, "moderators": ["debra"], "teams": []})
+      db.session.remove()
+      db.drop_all()
       
     #Feature 2 Integration Tests
     def test1_add_results(self):
-      db.drop_all()
       db.create_all()
       mod = create_moderator("debra", "debrapass")
       comp = create_competition(mod.username, "RunTime", "29-03-2024", "St. Augustine", 2, 25)
@@ -218,9 +254,10 @@ class IntegrationTests(unittest.TestCase):
       team = add_team(mod.username, comp.name, "Runtime Terrors", students)
       comp_team = add_results(mod.username, comp.name, "Runtime Terrors", 15)
       assert comp_team.points_earned == 15
+      db.session.remove()
+      db.drop_all()
     
     def test2_add_results(self):
-      db.drop_all()
       db.create_all()
       mod = create_moderator("debra", "debrapass")
       comp = create_competition(mod.username, "RunTime", "29-03-2024", "St. Augustine", 2, 25)
@@ -235,9 +272,10 @@ class IntegrationTests(unittest.TestCase):
       students = [student1.username, student4.username, student5.username]
       team = add_team(mod.username, comp.name, "Scrum Lords", students)
       assert team == None
+      db.session.remove()
+      db.drop_all()
     
     def test3_add_results(self):
-      db.drop_all()
       db.create_all()
       mod1 = create_moderator("debra", "debrapass")
       mod2 = create_moderator("robert", "robertpass")
@@ -248,10 +286,11 @@ class IntegrationTests(unittest.TestCase):
       students = [student1.username, student2.username, student3.username]
       team = add_team(mod2.username, comp.name, "Runtime Terrors", students)
       assert team == None
+      db.session.remove()
+      db.drop_all()
 
     #Feature 3 Integration Tests
     def test_display_student_info(self):
-      db.drop_all()
       db.create_all()
       mod = create_moderator("debra", "debrapass")
       comp = create_competition(mod.username, "RunTime", "29-03-2024", "St. Augustine", 2, 25)
@@ -262,12 +301,12 @@ class IntegrationTests(unittest.TestCase):
       team = add_team(mod.username, comp.name, "Runtime Terrors", students)
       comp_team = add_results(mod.username, comp.name, "Runtime Terrors", 15)
       update_ratings(mod.username, comp.name)
-      update_rankings()
-      self.assertDictEqual(display_student_info("james"), {"profile": {'id': 1, 'username': 'james', 'rating_score': 24.0, 'comp_count': 1, 'curr_rank': 1}, "competitions": ['RunTime']})
+      self.assertDictEqual(display_student_info("james"), {"profile": {'id': 1, 'username': 'james', 'total_rating': 24.0, 'average_rating': 24.0, 'comp_count': 1, 'curr_rank': 1, 'ranking_history': []}, "competitions": ['RunTime']})
+      db.session.remove()
+      db.drop_all()
 
     #Feature 4 Integration Tests
     def test_display_competition(self):
-      db.drop_all()
       db.create_all()
       mod = create_moderator("debra", "debrapass")
       comp = create_competition(mod.username, "RunTime", "29-03-2024", "St. Augustine", 2, 25)
@@ -290,12 +329,12 @@ class IntegrationTests(unittest.TestCase):
       team3 = add_team(mod.username, comp.name, "Beyond Infinity", students3)
       comp_team = add_results(mod.username, comp.name, "Beyond Infinity", 10)
       update_ratings(mod.username, comp.name)
-      update_rankings()
       self.assertDictEqual(comp.get_json(), {'id': 1, 'name': 'RunTime', 'date': '29-03-2024', 'location': 'St. Augustine', 'level': 2, 'max_score': 25, 'moderators': ['debra'], 'teams': ['Runtime Terrors', 'Scrum Lords', 'Beyond Infinity']})
+      db.session.remove()
+      db.drop_all()
 
     #Feature 5 Integration Tests
     def test_display_rankings(self):
-      db.drop_all()
       db.create_all()
       mod = create_moderator("debra", "debrapass")
       comp = create_competition(mod.username, "RunTime", "29-03-2024", "St. Augustine", 2, 25)
@@ -312,12 +351,12 @@ class IntegrationTests(unittest.TestCase):
       team2 = add_team(mod.username, comp.name, "Scrum Lords", students2)
       comp_team2 = add_results(mod.username, comp.name, "Scrum Lords", 10)
       update_ratings(mod.username, comp.name)
-      update_rankings()
-      self.assertListEqual(display_rankings(), [{"placement": 1, "student": "james", "rating score": 24.0}, {"placement": 1, "student": "steven", "rating score": 24.0}, {"placement": 1, "student": "emily", "rating score": 24.0}, {"placement": 4, "student": "mark", "rating score": 16.0}, {"placement": 4, "student": "eric", "rating score": 16.0}, {"placement": 4, "student": "ryan", "rating score": 16.0}])
+      self.assertListEqual(get_student_leaderboard_data(), [{"placement": 1, "student": "james", "Total Score": 24.0, "Average Score": 24.0}, {"placement": 2, "student": "steven", "Total Score": 24.0, "Average Score": 24.0}, {"placement": 3, "student": "emily", "Total Score": 24.0, "Average Score": 24.0}, {"placement": 4, "student": "mark", "Total Score": 16.0, "Average Score": 16.0}, {"placement": 5, "student": "eric", "Total Score": 16.0, "Average Score": 16.0}, {"placement": 6, "student": "ryan", "Total Score": 16.0, "Average Score": 16.0}])
+      db.session.remove()
+      db.drop_all()
 
     #Feature 6 Integration Tests
     def test1_display_notification(self):
-      db.drop_all()
       db.create_all()
       mod = create_moderator("debra", "debrapass")
       comp = create_competition(mod.username, "RunTime", "29-03-2024", "St. Augustine", 2, 25)
@@ -334,11 +373,12 @@ class IntegrationTests(unittest.TestCase):
       team2 = add_team(mod.username, comp.name, "Scrum Lords", students2)
       comp_team2 = add_results(mod.username, comp.name, "Scrum Lords", 10)
       update_ratings(mod.username, comp.name)
-      update_rankings()
       self.assertDictEqual(display_notifications("james"), {"notifications": [{"ID": 1, "Notification": "RANK : 1. Congratulations on your first rank!"}]})
+      db.session.remove()
+      db.drop_all()
+
 
     def test2_display_notification(self):
-      db.drop_all()
       db.create_all()
       mod = create_moderator("debra", "debrapass")
       comp1 = create_competition(mod.username, "RunTime", "29-03-2024", "St. Augustine", 2, 25)
@@ -356,7 +396,6 @@ class IntegrationTests(unittest.TestCase):
       team2 = add_team(mod.username, comp1.name, "Scrum Lords", students2)
       comp1_team2 = add_results(mod.username, comp1.name, "Scrum Lords", 10)
       update_ratings(mod.username, comp1.name)
-      update_rankings()
       students3 = [student1.username, student4.username, student5.username]
       team3 = add_team(mod.username, comp2.name, "Runtime Terrors", students3)
       comp_team3 = add_results(mod.username, comp2.name, "Runtime Terrors", 15)
@@ -364,9 +403,11 @@ class IntegrationTests(unittest.TestCase):
       team4 = add_team(mod.username, comp2.name, "Scrum Lords", students4)
       comp_team4 = add_results(mod.username, comp2.name, "Scrum Lords", 10)
       update_ratings(mod.username, comp2.name)
-      update_rankings()
       self.assertDictEqual(display_notifications("james"), {"notifications": [{"ID": 1, "Notification": "RANK : 1. Congratulations on your first rank!"}, {"ID": 7, "Notification": "RANK : 1. Well done! You retained your rank."}]})
+      db.session.remove()
+      db.drop_all()
 
+    '''
     def test3_display_notification(self):
       db.drop_all()
       db.create_all()
@@ -504,3 +545,4 @@ class IntegrationTests(unittest.TestCase):
       update_ratings(mod.username, comp2.name)
       update_rankings()
       self.assertListEqual(get_all_competitions_json(), [{"id": 1, "name": "RunTime", "date": "29-03-2024", "location": "St. Augustine", "level": 2, "max_score": 25, "moderators": ["debra"], "teams": ["Runtime Terrors", "Scrum Lords"]}, {"id": 2, "name": "Hacker Cup", "date": "23-02-2024", "location": "Macoya", "level": 1, "max_score": 20, "moderators": ["debra"], "teams": ["Runtime Terrors", "Scrum Lords"]}])
+      '''

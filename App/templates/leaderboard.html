@@ -60,7 +60,8 @@
                     <tr style="color: white;">
                         <th><center>Overall Rank</center></th>
                         <th><center>Username</center></th>
-                        <th><center>Rating Score</center></th>
+                        <th><center>Total Score</center></th>
+                        <th><center>Average Score</center></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -68,7 +69,8 @@
                     <tr style="color: white;">
                         <td><center>{{student['placement']}}</center></td>
                         <td><center><a style= "color: white;" href="{{url_for('index_views.student_profile_by_name', name=student['student'])}}">{{ student['student']}}</a></center></td>
-                        <td><center>{{'%0.2f' % student['rating score']|float}}</center></td>
+                        <td><center>{{'%0.2f' % student['Total Score']|float}}</center></td>
+                        <td><center>{{'%0.2f' % student['Average Score']|float}}</center></td>
                     </tr>
                     {% endfor %}
                 </tbody>

@@ -1,11 +1,12 @@
 from flask import Blueprint, render_template, jsonify, request, send_from_directory, flash, redirect, url_for, session
 from flask_jwt_extended import jwt_required, current_user as jwt_current_user
 from flask_login import current_user, login_required
-#from datetime import datetime
+
+from App.controllers.competition import *
 
 from.index import index_views
-
-from App.controllers import *
+from App.controllers.team import *
+from App.controllers.moderator import *
 
 comp_views = Blueprint('comp_views', __name__, template_folder='../templates')
 
@@ -175,9 +176,7 @@ def confirm_results(comp_name):
     competition = get_competition_by_name(comp_name)
 
     if update_ratings(moderator.username, competition.name):
-        update_rankings()
-
-    leaderboard = display_competition_results(comp_name)
+        leaderboard = display_competition_results(comp_name)
 
     return render_template('competition_details.html', competition=competition, moderator=moderator, leaderboard=leaderboard, user=current_user)
 """

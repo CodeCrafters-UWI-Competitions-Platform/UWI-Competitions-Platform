@@ -1,9 +1,11 @@
 from App.database import db
 from datetime import datetime
+
+from .subject import *
 from .competition_moderator import *
 from .competition_team import *
 
-class Competition(db.Model):
+class Competition(Subject, db.Model):
     __tablename__='competition'
 
     id = db.Column(db.Integer, primary_key=True)
@@ -60,7 +62,10 @@ class Competition(db.Model):
             db.session.rollback()
             print("Something went wrong!")
             return None
-
+        
+    def notify_results_updated(self):
+        self.notify()
+    
     def get_json(self):
         return {
             "id": self.id,
