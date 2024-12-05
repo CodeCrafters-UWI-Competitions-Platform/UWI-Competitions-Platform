@@ -1,5 +1,7 @@
+from App.controllers.student import calculate_ratings
 from App.database import db
 from App.models import Moderator, Competition, Team, CompetitionTeam
+from App.controllers import *
 
 def create_moderator(username, password):
     mod = get_moderator_by_username(username)
@@ -106,7 +108,6 @@ def add_results(mod_name, comp_name, team_name, score):
                         return None
     return None
 
-
 def update_ratings(mod_name, comp_name):
     mod = Moderator.query.filter_by(username=mod_name).first()
     comp = Competition.query.filter_by(name=comp_name).first()
@@ -127,20 +128,7 @@ def update_ratings(mod_name, comp_name):
         print(f'No teams found. Results can not be confirmed!')
         return None
     else:
-        comp_teams = CompetitionTeam.query.filter_by(comp_id=comp.id).all()
-
-        for comp_team in comp_teams:
-            team = Team.query.filter_by(id=comp_team.team_id).first()
-
-            for stud in team.students:
-                stud.rating_score = (stud.rating_score*stud.comp_count + comp_team.rating_score)/(stud.comp_count+1)
-                stud.comp_count += 1
-                try:
-                    db.session.add(stud)
-                    db.session.commit()
-                except Exception as e:
-                    db.session.rollback()
-
+        update_all_rankings_total()
         comp.confirm = True
         print("Results finalized!")
         return True
