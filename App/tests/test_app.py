@@ -60,19 +60,21 @@ class UnitTests(unittest.TestCase):
       self.assertDictEqual(student.get_json(), {"id": None, "username": "james", "total_rating": 0, "average_rating": 0, "comp_count": 0, "curr_rank": 0, "ranking_history": []})
       db.session.remove()
       db.drop_all()
-      
+
     #Moderator Unit Tests
     def test_new_moderator(self):
-      db.drop_all()
       db.create_all()
       mod = Moderator("robert", "robertpass")
       assert mod.username == "robert"
+      db.session.remove()
+      db.drop_all()
 
     def test_moderator_get_json(self):
-      db.drop_all()
       db.create_all()
       mod = Moderator("robert", "robertpass")
       self.assertDictEqual(mod.get_json(), {"id":None, "username": "robert", "competitions": []})
+      db.session.remove()
+      db.drop_all()
     
     #Team Unit Tests
     def test_new_team(self):
