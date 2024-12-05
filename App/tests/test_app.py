@@ -5,7 +5,7 @@ from App.main import create_app
 from App.database import db, create_db
 from App.models import *
 from App.controllers import *
-
+from App.controllers.student import *
 
 LOGGER = logging.getLogger(__name__)
 
@@ -307,7 +307,6 @@ class IntegrationTests(unittest.TestCase):
 
     #Feature 4 Integration Tests
     def test_display_competition(self):
-      db.drop_all()
       db.create_all()
       mod = create_moderator("debra", "debrapass")
       comp = create_competition(mod.username, "RunTime", "29-03-2024", "St. Augustine", 2, 25)
@@ -330,12 +329,12 @@ class IntegrationTests(unittest.TestCase):
       team3 = add_team(mod.username, comp.name, "Beyond Infinity", students3)
       comp_team = add_results(mod.username, comp.name, "Beyond Infinity", 10)
       update_ratings(mod.username, comp.name)
-      update_rankings()
       self.assertDictEqual(comp.get_json(), {'id': 1, 'name': 'RunTime', 'date': '29-03-2024', 'location': 'St. Augustine', 'level': 2, 'max_score': 25, 'moderators': ['debra'], 'teams': ['Runtime Terrors', 'Scrum Lords', 'Beyond Infinity']})
+      db.session.remove()
+      db.drop_all()
 
     #Feature 5 Integration Tests
     def test_display_rankings(self):
-      db.drop_all()
       db.create_all()
       mod = create_moderator("debra", "debrapass")
       comp = create_competition(mod.username, "RunTime", "29-03-2024", "St. Augustine", 2, 25)
@@ -352,8 +351,9 @@ class IntegrationTests(unittest.TestCase):
       team2 = add_team(mod.username, comp.name, "Scrum Lords", students2)
       comp_team2 = add_results(mod.username, comp.name, "Scrum Lords", 10)
       update_ratings(mod.username, comp.name)
-      update_rankings()
-      self.assertListEqual(display_rankings(), [{"placement": 1, "student": "james", "rating score": 24.0}, {"placement": 1, "student": "steven", "rating score": 24.0}, {"placement": 1, "student": "emily", "rating score": 24.0}, {"placement": 4, "student": "mark", "rating score": 16.0}, {"placement": 4, "student": "eric", "rating score": 16.0}, {"placement": 4, "student": "ryan", "rating score": 16.0}])
+      self.assertListEqual(get_student_leaderboard_data(), [{"placement": 1, "student": "james", "Total Score": 24.0, "Average Score": 24.0}, {"placement": 2, "student": "steven", "Total Score": 24.0, "Average Score": 24.0}, {"placement": 3, "student": "emily", "Total Score": 24.0, "Average Score": 24.0}, {"placement": 4, "student": "mark", "Total Score": 16.0, "Average Score": 16.0}, {"placement": 5, "student": "eric", "Total Score": 16.0, "Average Score": 16.0}, {"placement": 6, "student": "ryan", "Total Score": 16.0, "Average Score": 16.0}])
+      db.session.remove()
+      db.drop_all()
 
     #Feature 6 Integration Tests
     def test1_display_notification(self):
