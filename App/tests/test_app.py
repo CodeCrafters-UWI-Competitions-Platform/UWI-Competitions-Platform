@@ -227,22 +227,23 @@ class IntegrationTests(unittest.TestCase):
     
     #Feature 1 Integration Tests
     def test1_create_competition(self):
-      db.drop_all()
       db.create_all()
       mod = create_moderator("debra", "debrapass")
       comp = create_competition(mod.username, "RunTime", "29-03-2024", "St. Augustine", 2, 25)
       assert comp.name == "RunTime" and comp.date.strftime("%d-%m-%Y") == "29-03-2024" and comp.location == "St. Augustine" and comp.level == 2 and comp.max_score == 25
+      db.session.remove()
+      db.drop_all()
 
     def test2_create_competition(self):
-      db.drop_all()
       db.create_all()
       mod = create_moderator("debra", "debrapass")
       comp = create_competition(mod.username, "RunTime", "29-03-2024", "St. Augustine", 2, 25)
       self.assertDictEqual(comp.get_json(), {"id": 1, "name": "RunTime", "date": "29-03-2024", "location": "St. Augustine", "level": 2, "max_score": 25, "moderators": ["debra"], "teams": []})
+      db.session.remove()
+      db.drop_all()
       
     #Feature 2 Integration Tests
     def test1_add_results(self):
-      db.drop_all()
       db.create_all()
       mod = create_moderator("debra", "debrapass")
       comp = create_competition(mod.username, "RunTime", "29-03-2024", "St. Augustine", 2, 25)
@@ -253,9 +254,10 @@ class IntegrationTests(unittest.TestCase):
       team = add_team(mod.username, comp.name, "Runtime Terrors", students)
       comp_team = add_results(mod.username, comp.name, "Runtime Terrors", 15)
       assert comp_team.points_earned == 15
+      db.session.remove()
+      db.drop_all()
     
     def test2_add_results(self):
-      db.drop_all()
       db.create_all()
       mod = create_moderator("debra", "debrapass")
       comp = create_competition(mod.username, "RunTime", "29-03-2024", "St. Augustine", 2, 25)
@@ -270,9 +272,10 @@ class IntegrationTests(unittest.TestCase):
       students = [student1.username, student4.username, student5.username]
       team = add_team(mod.username, comp.name, "Scrum Lords", students)
       assert team == None
+      db.session.remove()
+      db.drop_all()
     
     def test3_add_results(self):
-      db.drop_all()
       db.create_all()
       mod1 = create_moderator("debra", "debrapass")
       mod2 = create_moderator("robert", "robertpass")
@@ -283,6 +286,8 @@ class IntegrationTests(unittest.TestCase):
       students = [student1.username, student2.username, student3.username]
       team = add_team(mod2.username, comp.name, "Runtime Terrors", students)
       assert team == None
+      db.session.remove()
+      db.drop_all()
 
     #Feature 3 Integration Tests
     def test_display_student_info(self):
