@@ -7,8 +7,10 @@ from flask.cli import with_appcontext, AppGroup
 
 from App.database import db, get_migrate
 from App.main import create_app
-from App.controllers import *
-
+from App.controllers.moderator import *
+from App.controllers.competition import *
+from App.controllers.student import *
+from App.controllers.team import *
 
 # This commands file allow you to create convenient CLI commands for testing controllers
 

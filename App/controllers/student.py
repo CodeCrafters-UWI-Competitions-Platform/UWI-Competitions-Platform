@@ -216,7 +216,6 @@ def update_all_rankings_competition_count():
         student.curr_rank = count
         count += 1
         db.session.add(student)
-
     try:
         db.session.commit()
     except Exception as e:
@@ -232,7 +231,10 @@ def save_ranking_history():
             record = RankingHistory(student.curr_rank, student.total_rating, student.average_rating, datetime.now())
             student.ranking_history.append(record)
             db.session.add(student)
-    db.session.commit()
+    try:
+        db.session.commit()
+    except Exception as e:
+        db.session.rollback()
 
 '''Checks if rank changed and issues a notification'''
 def send_notification():
@@ -257,5 +259,7 @@ def send_notification():
                 notification = Notification(student.id, f"RANK : {student.curr_rank}. Well done! You retained your rank.")
                 db.session.add(notification)
 
-            
-    db.session.commit()
+    try:
+        db.session.commit()
+    except Exception as e:
+        db.session.rollback()
