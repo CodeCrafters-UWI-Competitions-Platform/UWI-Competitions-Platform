@@ -159,32 +159,36 @@ class UnitTests(unittest.TestCase):
     """
     #CompetitionTeam Unit Tests
     def test_new_competition_team(self):
-      db.drop_all()
       db.create_all()
       competition_team = CompetitionTeam(1, 1)
       assert competition_team.comp_id == 1 and competition_team.team_id == 1
+      db.session.remove()
+      db.drop_all()
 
     def test_competition_team_update_points(self):
-      db.drop_all()
       db.create_all()
       competition_team = CompetitionTeam(1, 1)
       competition_team.update_points(15)
       assert competition_team.points_earned == 15
+      db.session.remove()
+      db.drop_all()
 
     def test_competition_team_update_rating(self):
-      db.drop_all()
       db.create_all()
       competition_team = CompetitionTeam(1, 1)
       competition_team.update_rating(12)
       assert competition_team.rating_score == 12
+      db.session.remove()
+      db.drop_all()
 
     def test_competition_team_get_json(self):
-      db.drop_all()
       db.create_all()
       competition_team = CompetitionTeam(1, 1)
       competition_team.update_points(15)
       competition_team.update_rating(12)
       self.assertDictEqual(competition_team.get_json(), {"id": None, "team_id": 1, "competition_id": 1, "points_earned": 15, "rating_score": 12})
+      db.session.remove()
+      db.drop_all()
 
     #CompetitionModerator Unit Tests
     def test_new_competition_moderator(self):
