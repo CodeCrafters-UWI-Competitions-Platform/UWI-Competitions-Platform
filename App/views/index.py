@@ -2,18 +2,19 @@ from flask import Blueprint, redirect, render_template, request, send_from_direc
 from flask_jwt_extended import jwt_required, current_user as jwt_current_user
 from flask_login import login_required, login_user, current_user, logout_user
 from App.models import db
-from App.controllers import *
+from App.controllers import add_results, create_competition, add_team, update_ratings, get_student_leaderboard_data, get_student, display_student_info, create_student, get_student_by_username, get_moderator
+from App.controllers.moderator import create_moderator
 import csv
 
 index_views = Blueprint('index_views', __name__, template_folder='../templates')
 
 @index_views.route('/', methods=['GET'])
 def home_page():
-    return render_template('leaderboard.html', leaderboard=display_rankings(), user=current_user)
+    return render_template('leaderboard.html', leaderboard=get_student_leaderboard_data(), user=current_user)
 
 @index_views.route('/leaderboard', methods=['GET'])
 def leaderboard_page():
-    return render_template('leaderboard.html', leaderboard=display_rankings(), user=current_user)#, competitions=get_all_competitions(), moderators=get_all_moderators())
+    return render_template('leaderboard.html', leaderboard=get_student_leaderboard_data(), user=current_user)#, competitions=get_all_competitions(), moderators=get_all_moderators())
 
 @index_views.route('/init', methods=['GET'])
 def init():
@@ -146,13 +147,12 @@ def init():
         for competition in reader:
             if competition['comp_name'] != 'TopCoder':
                 update_ratings(competition['mod_name'], competition['comp_name'])
-                update_rankings()
             #db.session.add(comp)
         #db.session.commit()
     
     competitions_file.close()
 
-    return render_template('leaderboard.html', leaderboard=display_rankings(), user=current_user)
+    return render_template('leaderboard.html', leaderboard=get_student_leaderboard_data(), user=current_user)
     """
 @index_views.route('/health', methods=['GET'])
 def health_check():
@@ -335,7 +335,6 @@ def init_postman():
 
         for competition in reader:
             update_ratings(competition['mod_name'], competition['comp_name'])
-            update_rankings()
             #db.session.add(comp)
         #db.session.commit()
     
