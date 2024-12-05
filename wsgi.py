@@ -70,7 +70,6 @@ def initialize():
         for competition in reader:
             if competition['comp_name'] != 'TopCoder':
                 update_ratings(competition['mod_name'], competition['comp_name'])
-                update_rankings()
             #db.session.add(comp)
         #db.session.commit()
     
@@ -217,11 +216,10 @@ def add_results_command(mod_name, comp_name, team_name, student1, student2, stud
 @click.argument("comp_name", default="comp1")
 def update_rankings_command(mod_name, comp_name):
     update_ratings(mod_name, comp_name)
-    update_rankings()
 
 @mod_cli.command("rankings", help="Displays overall rankings")
 def display_rankings_command():
-    display_rankings()
+    get_student_leaderboard_data()
 
 @mod_cli.command("list", help="Lists moderators in the database")
 @click.argument("format", default="string")
