@@ -93,16 +93,18 @@ class UnitTests(unittest.TestCase):
     
     #Competition Unit Tests
     def test_new_competition(self):
-      db.drop_all()
       db.create_all()
       competition = Competition("RunTime", datetime.strptime("09-02-2024", "%d-%m-%Y"), "St. Augustine", 1, 25)
       assert competition.name == "RunTime" and competition.date.strftime("%d-%m-%Y") == "09-02-2024" and competition.location == "St. Augustine" and competition.level == 1 and competition.max_score == 25
+      db.session.remove()
+      db.drop_all()
 
     def test_competition_get_json(self):
-      db.drop_all()
       db.create_all()
       competition = Competition("RunTime", datetime.strptime("09-02-2024", "%d-%m-%Y"), "St. Augustine", 1, 25)
       self.assertDictEqual(competition.get_json(), {"id": None, "name": "RunTime", "date": "09-02-2024", "location": "St. Augustine", "level": 1, "max_score": 25, "moderators": [], "teams": []})
+      db.session.remove()
+      db.drop_all()
     
     #Notification Unit Tests
     def test_new_notification(self):
