@@ -19,10 +19,6 @@ class CompetitionTeam(db.Model):
     def update_points(self, points_earned):
       self.points_earned = points_earned
 
-      competition = Competition.query.get(self.comp_id)
-      if competition:
-         competition.notify()
-
     def update_rating(self, rating_score):
       self.rating_score = rating_score
 

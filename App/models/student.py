@@ -14,8 +14,8 @@ class Student(User):
 
     def __init__(self, username, password):
         super().__init__(username, password)
-        self.total_rating = 0
-        self.average_rating = 0
+        self.total_rating = 0.0
+        self.average_rating = 0.0
         self.comp_count = 0
         self.curr_rank = 0
         self.teams = []
