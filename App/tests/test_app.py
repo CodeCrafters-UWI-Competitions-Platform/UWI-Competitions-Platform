@@ -192,16 +192,18 @@ class UnitTests(unittest.TestCase):
 
     #CompetitionModerator Unit Tests
     def test_new_competition_moderator(self):
-      db.drop_all()
       db.create_all()
       competition_moderator = CompetitionModerator(1, 1)
       assert competition_moderator.comp_id == 1 and competition_moderator.mod_id == 1
+      db.session.remove()
+      db.drop_all()
 
     def test_competition_moderator_get_json(self):
-      db.drop_all()
       db.create_all()
       competition_moderator = CompetitionModerator(1, 1)
       self.assertDictEqual(competition_moderator.get_json(), {"id": None, "competition_id": 1, "moderator_id": 1})
+      db.session.remove()
+      db.drop_all()
 
     #StudentTeam Unit Tests
     def test_new_student_team(self):
