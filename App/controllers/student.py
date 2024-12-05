@@ -141,14 +141,16 @@ def calculate_ratings():
     students = get_all_students()
     for student in students:
         total_rating = 0
+        count = 0
         for team in student.teams:
             competition_teams = CompetitionTeam.query.filter_by(team_id=team.id).all()
             for competition_team in competition_teams:
+                count += 1
                 total_rating += competition_team.rating_score
 
-        average_rating = total_rating / len(competition_teams)
+        average_rating = total_rating / count
         update_ratings_db(student.id, total_rating, average_rating)
-
+        
 '''Updates the database for total and average for a single student'''
 def update_ratings_db(id, total_rating, average_rating):
     student = get_student(id)
