@@ -3,11 +3,9 @@ from flask_jwt_extended import jwt_required, current_user as jwt_current_user
 from flask_login import login_required, login_user, current_user, logout_user
 from App.models import db
 from App.controllers import *
-
+from App.controllers.moderator import get_moderator_by_username
 
 from.index import index_views
-
-from App.controllers import *
 
 auth_views = Blueprint('auth_views', __name__, template_folder='../templates')
 
@@ -86,7 +84,7 @@ def login():
                 login_user(student)
                 session['user_type'] = 'student'
                 #flash("Login successful!", category='success')
-                return render_template('leaderboard.html', leaderboard=display_rankings(), user=current_user)
+                return render_template('leaderboard.html', leaderboard=get_student_leaderboard_data(), user=current_user)
             #else:
             #flash("Invalid Credentials!", category='error')
             #return render_template('login.html', user=current_user)
@@ -96,7 +94,7 @@ def login():
                 login_user(moderator)
                 session['user_type'] = 'moderator'
                 #flash("Login successful!", category='success')
-                return render_template('leaderboard.html', leaderboard=display_rankings(), user=current_user)
+                return render_template('leaderboard.html', leaderboard=get_student_leaderboard_data(), user=current_user)
             #else:
             #flash("Invalid Credentials!", category='error')
             #return render_template('login.html', user=current_user)
@@ -111,7 +109,7 @@ def login():
 def logout():
     logout_user()
     session['user_type'] = None
-    return render_template('leaderboard.html', leaderboard=display_rankings(), user=current_user)
+    return render_template('leaderboard.html', leaderboard=get_student_leaderboard_data(), user=current_user)
 
 @auth_views.route('/signup', methods=['GET', 'POST'])
 def signup():
@@ -125,6 +123,6 @@ def signup():
             #flash('Account created successfully!', category="success")
                 login_user(student)
                 session['user_type'] = 'student'
-                return render_template('leaderboard.html', leaderboard=display_rankings(), user=current_user)#, competitions=get_all_competitions())
+                return render_template('leaderboard.html', leaderboard=get_student_leaderboard_data(), user=current_user)#, competitions=get_all_competitions())
     
     return render_template('signup.html', user=current_user)
