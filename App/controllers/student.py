@@ -174,19 +174,16 @@ def update_all_rankings_total():
     rank = 1
     prev_student = None
 
-    for count, student in enumerate(students, start=1):
-        if prev_student:
-            if prev_student.total_rating != student.total_rating and prev_student.average_rating != student.average_rating and prev_student.comp_count != student.comp_count:
-                rank = count
+    for student in students:
         student.curr_rank = rank
-        prev_student = student
+        rank += 1
         db.session.add(student)
     try:
         db.session.commit()
     except Exception as e:
         db.session.rollback()
     send_notification()
-
+    
 '''Updates the rank of all students based on the average rating per competition'''
 def update_all_rankings_average():
     if calculate_ratings():
