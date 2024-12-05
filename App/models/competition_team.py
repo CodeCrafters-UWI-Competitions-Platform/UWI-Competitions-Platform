@@ -1,4 +1,5 @@
 from App.database import db
+from .competition import *
 
 class CompetitionTeam(db.Model):
     __tablename__ = 'competition_team'
@@ -31,10 +32,10 @@ class CompetitionTeam(db.Model):
       }
 
     def toDict(self):
-        return {
-            "ID" : self.id,
-            "Student ID" : self.student_id,
-            "Competition ID" : self.comp_id,
-            "Points Earned" : self.points_earned,
-            "Rating Score" : self.rating_score
-        } 
+      return {
+        "ID" : self.id,
+        "Student ID" : self.student_id,
+        "Competition ID" : self.comp_id,
+        "Points Earned" : self.points_earned,
+        "Rating Score" : self.rating_score
+      } 
