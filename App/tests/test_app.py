@@ -13,7 +13,7 @@ LOGGER = logging.getLogger(__name__)
    Unit Tests
 '''
 class UnitTests(unittest.TestCase):
-    #User Unit Tests
+    
     #RankingHistory Unit Tests
     def test_new_ranking_history(self):
       db.create_all()
@@ -29,6 +29,8 @@ class UnitTests(unittest.TestCase):
       db.session.remove()
       db.drop_all()
     
+    #User Unit Tests
+
     def test_new_user(self):
         user = User("ryan", "ryanpass")
         assert user.username == "ryan"
@@ -46,17 +48,19 @@ class UnitTests(unittest.TestCase):
 
     #Student Unit Tests
     def test_new_student(self):
-      db.drop_all()
       db.create_all()
       student = Student("james", "jamespass")
       assert student.username == "james"
+      db.session.remove()
+      db.drop_all()
 
     def test_student_get_json(self):
-      db.drop_all()
       db.create_all()
       student = Student("james", "jamespass")
-      self.assertDictEqual(student.get_json(), {"id": None, "username": "james", "rating_score": 0, "comp_count": 0, "curr_rank": 0})
-
+      self.assertDictEqual(student.get_json(), {"id": None, "username": "james", "total_rating": 0, "average_rating": 0, "comp_count": 0, "curr_rank": 0, "ranking_history": []})
+      db.session.remove()
+      db.drop_all()
+      
     #Moderator Unit Tests
     def test_new_moderator(self):
       db.drop_all()
